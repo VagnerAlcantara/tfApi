@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,11 @@ namespace Transacao.Infra.Data.Repositories
     public class ContaRepository : RepositoryBase<ContaEntity>, IContaRepository
     {
         private IConfiguration _config;
+        TransacaoContext _context;
         public ContaRepository(TransacaoContext context, IConfiguration config) : base(context)
         {
             _config = config;
+            _context = context;
         }
 
         #region| Obter todos
@@ -39,7 +42,7 @@ namespace Transacao.Infra.Data.Repositories
         {
             IEnumerable<ContaEntity> response;
 
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("connTransacao")))
+            using (SqlConnection conexao = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
             {
                 response = await conexao.QueryAsync<ContaEntity>(SelectObterTodos, null, commandType: CommandType.Text);
 
@@ -67,7 +70,7 @@ namespace Transacao.Infra.Data.Repositories
         }
         public override async Task<ContaEntity> ObterPorId(int id)
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("connTransacao")))
+            using (SqlConnection conexao = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
             {
                 return await conexao.QueryFirstOrDefaultAsync<ContaEntity>(SelectObterPorId, new { id = id }, commandType: CommandType.Text);
             }
@@ -97,7 +100,7 @@ namespace Transacao.Infra.Data.Repositories
         }
         public async Task<ContaEntity> ObterPorConta(int agencia, int numero, int digito)
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("connTransacao")))
+            using (SqlConnection conexao = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
             {
                 return await conexao.QueryFirstOrDefaultAsync<ContaEntity>(SelectObterPorConta, new { @agencia = agencia, @numero = numero, @digito = digito }, commandType: CommandType.Text);
             }

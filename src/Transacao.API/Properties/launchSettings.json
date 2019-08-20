@@ -17,6 +17,20 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "IIS Express - Staging": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging"
+      }
+    },
+    "IIS Express - Prod": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    },
     "Transacao.API": {
       "commandName": "Project",
       "launchBrowser": true,

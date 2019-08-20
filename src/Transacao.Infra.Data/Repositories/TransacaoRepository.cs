@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,11 @@ namespace Transacao.Infra.Data.Repositories
     public class TransacaoRepository : RepositoryBase<TransacaoEntity>, ITransacaoRepository
     {
         private IConfiguration _config;
-
+        TransacaoContext _context;
         public TransacaoRepository(TransacaoContext context, IConfiguration config) : base(context)
         {
             _config = config;
+            _context = context;
         }
 
         public string SelectObterTodos
@@ -55,7 +57,7 @@ namespace Transacao.Infra.Data.Repositories
         {
             IEnumerable<TransacaoEntity> response;
 
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("connTransacao")))
+            using (SqlConnection conexao = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
             {
                 response = await conexao.QueryAsync<TransacaoEntity>(SelectObterTodos, null, commandType: CommandType.Text);
 
@@ -65,7 +67,7 @@ namespace Transacao.Infra.Data.Repositories
         }
         public override async Task<TransacaoEntity> ObterPorId(int id)
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("connTransacao")))
+            using (SqlConnection conexao = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
             {
                 return await conexao.QueryFirstOrDefaultAsync<TransacaoEntity>(SelectObterPorId, new { id = id }, commandType: CommandType.Text);
             }
