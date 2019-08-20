@@ -21,10 +21,6 @@ namespace Transacao.Domain.Services
             _repository = repository;
             _notificador = notificador;
         }
-        public ServiceBase(IRepositoryBase<T> repository)
-        {
-            _repository = repository;
-        }
         #region| Validation
         protected void Notificar(string mensagem)
         {

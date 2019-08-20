@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Transacao.Domain.Entities;
+using Transacao.Domain.Interfaces;
 using Transacao.Domain.Interfaces.Repositories;
 using Transacao.Domain.Interfaces.Services;
 
@@ -9,10 +10,12 @@ namespace Transacao.Domain.Services
     public class ContaService : ServiceBase<ContaEntity>, IContaService
     {
         private readonly IContaRepository _contaRepository;
+        private readonly INotificador _notificador;
 
-        public ContaService(IContaRepository contaRepository) : base(contaRepository)
+        public ContaService(IContaRepository contaRepository, INotificador notificador) : base(contaRepository, notificador)
         {
             _contaRepository = contaRepository;
+            _notificador = notificador;
         }
 
         public async Task<ContaEntity> ObterPorConta(int agencia, int numero, int digito)
