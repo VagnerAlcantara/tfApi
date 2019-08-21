@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,11 +17,14 @@ namespace Transacao.API.Controllers
         private readonly IContaAppService _contaAppService;
         private readonly INotificador _notificador;
         private readonly IMapper _mapper;
-        public ContaController(IContaAppService contaAppService, IMapper mapper, INotificador notificador) : base(notificador)
+        private readonly ILogger _logger;
+
+        public ContaController(IContaAppService contaAppService, IMapper mapper, INotificador notificador, ILoggerFactory loggerFactory) : base(notificador, loggerFactory)
         {
             _contaAppService = contaAppService;
             _mapper = mapper;
             _notificador = notificador;
+            _logger = _loggerFactory.CreateLogger("LoggerConta");
         }
 
         [Route("")]
@@ -29,10 +33,14 @@ namespace Transacao.API.Controllers
         {
             try
             {
+                _logger.LogInformation("Requisição para obter todos as contas");
+
                 return Response(true, _mapper.Map<List<ContaResponse>>(await _contaAppService.ObterTodos()));
             }
             catch (Exception ex)
             {
+                _logger.LogError("Erro na requisição para obter todos as contas - erro: ${ex.Message}");
+
                 return Response(false, ex.Message);
             }
         }
@@ -43,6 +51,8 @@ namespace Transacao.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Requisição para obter a conta com id {id}");
+
                 var response = await _contaAppService.ObterPorId(id);
 
                 if (response == null)
@@ -52,6 +62,8 @@ namespace Transacao.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Erro na requisição para obter a conta com id {id} - erro: ${ex.Message}");
+
                 return Response(false, ex);
             }
         }

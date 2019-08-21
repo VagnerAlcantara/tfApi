@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,11 +18,17 @@ namespace Transacao.API.Controllers
         private readonly ITransacaoAppService _transacaoAppService;
         private readonly IMapper _mapper;
         private readonly INotificador _notificador;
-        public TransacaoController(ITransacaoAppService transacaoAppService, IMapper mapper, INotificador notificador) : base(notificador)
+        private readonly ILogger _logger;
+        public TransacaoController(
+            ITransacaoAppService transacaoAppService,
+            IMapper mapper,
+            INotificador notificador,
+            ILoggerFactory loggerFactory) : base(notificador, loggerFactory)
         {
             _transacaoAppService = transacaoAppService;
             _mapper = mapper;
             _notificador = notificador;
+            _logger = _loggerFactory.CreateLogger("LoggerTransacao");
         }
 
         [Route("")]
@@ -30,10 +37,14 @@ namespace Transacao.API.Controllers
         {
             try
             {
+                _logger.LogInformation("Requisição para obter todos as transações");
+
                 return Response(true, _mapper.Map<List<TransacaoResponse>>(await _transacaoAppService.ObterTodos()));
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Erro na requisição para todas as transações", ex);
+
                 return Response(false, ex.Message);
             }
         }
@@ -44,6 +55,8 @@ namespace Transacao.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Requisição para obter a transação com id {id}");
+
                 var response = await _transacaoAppService.ObterPorId(id);
 
                 if (response == null)
@@ -53,6 +66,8 @@ namespace Transacao.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Erro na requisição para todas as transações", ex);
+
                 return Response(false, ex);
             }
         }
@@ -63,19 +78,32 @@ namespace Transacao.API.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) return Response(false, new BadRequestObjectResult(ModelState.Values));
+                _logger.LogInformation($"Requisição para inclusão de uma nova transação", request);
 
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogInformation($"Request com dados inválidos para inclusão de nova transação", request);
+                    return Response(false, new BadRequestObjectResult(ModelState.Values));
+                }
                 var transacaoEntity = _mapper.Map<TransacaoEntity>(request);
 
                 await _transacaoAppService.Adicionar(transacaoEntity);
 
                 if (!OperacaoValida())
+                {
+                    _logger.LogInformation($"Request com dados inválidos para inclusão de nova transação", request);
+
                     return Response(false, _notificador.ObterNotificacoes());
+                }
+
+                _logger.LogInformation($"Transação incluída com sucesso", request);
 
                 return Response(true, _mapper.Map<TransacaoResponse>(transacaoEntity));
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Erro na requisição para inclusão de uma nova transação", ex);
+
                 return Response(false, ex);
             }
         }
