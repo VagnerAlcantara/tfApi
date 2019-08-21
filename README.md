@@ -13,6 +13,7 @@ API responsável pelas transações financeiras [ LAB ]
 	 * Fluent API
  - Micro ORM: Dapper (Consultas)
  - Swagger
+ - ILoggerFactory # Para logs
  - AutoMapper
  - FluentValidation
  - Azure Sql Server
