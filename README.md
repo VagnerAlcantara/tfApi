@@ -18,4 +18,4 @@ API responsável pelas transações financeiras [ LAB ]
  - FluentValidation
  - Azure Sql Server
 # Hospedado:
- - Microsoft Azure
+ - Microsoft Azure: https://tfapi.azurewebsites.net/swagger/index.html
