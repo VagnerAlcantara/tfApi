@@ -41,6 +41,10 @@ namespace Transacao.API
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.Configure<ApiBehaviorOptions>(opt => {
+                opt.SuppressModelStateInvalidFilter = true;
+            });
+
             //Swagger
             services.ConfigDocumentacaoComSwagger();
 
